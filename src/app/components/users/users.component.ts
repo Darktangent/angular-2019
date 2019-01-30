@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import {User} from '../../models/User'
+import { Component, OnInit, ViewChild } from '@angular/core';
+import {User} from '../../models/User';
+import {DataService} from '../../services/data.service'
 @Component({
   selector: 'app-users',
   templateUrl: './users.component.html',
@@ -9,73 +10,30 @@ export class UsersComponent implements OnInit {
   user:User={
     firstName:'',
     lastName:'',
-    age:null,
-    address:{
-      street:'',
-      city:'',
-      state:''
-    }
+    email:''
   }
   users:User[];
   showExtended:boolean=true;
   loaded:boolean=true;
   enableAdd:boolean=false;
   showUserForm:boolean=false;
+  @ViewChild('userForm') form:any;
+  data:any
   // currentClasses={
   //
   // }
   // currentStyles={}
-  constructor() { }
+  constructor(private dataService:DataService) { }
 
   ngOnInit() {
-    this.users=[{
-      firstName:'John',
-      lastName:'Doe',
-      age:30,
-      address:{
-        street:'50 main st',
-        city:"Boston",
-        state:'MA'
-      },
-      // image:'http:///lorempixel.com/600/600/people/10',
-      isActive:true,
+    this.dataService.getData().subscribe(data=>{
+      console.log(data)
+    })
+    this.dataService.getUsers().subscribe(users=>{
+      this.users=users;
+      this.loaded=true;
+    })
 
-      registered: new Date('01/02/2018 09:30:00'),
-      hide:true
-    },
-    {
-      firstName:'Kevin',
-      lastName:'Hart',
-      age:34,
-      address:{
-        street:'43 main st',
-        city:"Houston",
-        state:'TX'
-      },
-      // image:'http:///lorempixel.com/600/600/people/7',
-      isActive:false,
-
-      registered: new Date('01/04/2018 07:30:00'),
-      hide:true
-    },
-    {
-      firstName:'Karen',
-      lastName:'Williams',
-      age:30,
-      address:{
-        street:'50 mill st',
-        city:"Bronx",
-        state:'NY'
-      },
-      // image:'http:///lorempixel.com/600/600/people/8',
-      isActive:true,
-
-      registered: new Date('01/06/2018 10:30:00'),
-      hide:true
-    }
-
-    ]
-    this.loaded=true;
     // this.setCurrentClasses();
     // this.setCurrentStyles();
 
@@ -87,31 +45,33 @@ export class UsersComponent implements OnInit {
     //
     // })
   }
-  addUser(){
-    this.user.isActive=true
-    this.user.registered=new Date();
-    this.users.unshift(this.user)
-    this.user={
-      firstName:'',
-      lastName:'',
-      age:null,
-      address:{
-        street:'',
-        city:'',
-        state:''
-      }
-    }
-  }
-  fireEvent(e){
-    console.log(e.type)
-    console.log(e.target.value)
-  }
+  // addUser(){
+  //   this.user.isActive=true
+  //   this.user.registered=new Date();
+  //   this.users.unshift(this.user)
+  //   this.user={
+  //     firstName:'',
+  //     lastName:'',
+  //     email:''
+  //   }
+  // }
+
   toggleHide(user:User){
     user.hide = !user.hide
   }
-  onSubmit(e){
-    console.log(e.target.value)
-    e.preventDefault();
+  onSubmit({value,valid}:{value:User, valid:boolean}){
+    // console.log(e.target.value)
+    // e.preventDefault();'
+    if(!valid){
+      console.log('Form is not valid')
+    }else{
+      value.isActive=true;
+      value.registered= new Date();
+      value.hide=false;
+      this.dataService.addUser(value)
+      this.form.reset();
+    }
+
   }
 //   setCurrentClasses(){
 //     this.currentClasses={
